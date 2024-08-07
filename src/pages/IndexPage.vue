@@ -10,6 +10,11 @@
 
 <script setup>
 defineOptions({
-  name: 'IndexPage'
+  name: 'IndexPage',
+  setup() {
+    return {
+
+    }
+  }
 });
 </script>

@@ -6,7 +6,8 @@
           <q-img src="~src/assets/logo.png"/>
         </q-item>
         <!--        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Главная</q-btn>-->
-        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Текст1</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/'">Главная</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/employees'">Сотрудники</q-btn>
         <q-space/>
         <q-btn v-if="isLoggedIn" class="text-accent" size="lg" no-caps flat :to="'/profile'">{{currentUser.username || ""}}</q-btn>
         <q-btn class="text-accent" flat round dense size="lg" icon="logout" @click="logout" />
