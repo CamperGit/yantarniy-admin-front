@@ -2,42 +2,16 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <q-item class="logo-item q-pa-none " clickable :to="'/book'">
+          <q-img src="~src/assets/logo.png"/>
+        </q-item>
+        <!--        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Главная</q-btn>-->
+        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Текст1</q-btn>
+        <q-space/>
+        <q-btn v-if="isLoggedIn" class="text-accent" size="lg" no-caps flat :to="'/profile'">{{currentUser.username || ""}}</q-btn>
+        <q-btn class="text-accent" flat round dense size="lg" icon="logout" @click="logout" />
       </q-toolbar>
     </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -45,62 +19,35 @@
   </q-layout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+<script>
+import { onMounted, ref, defineComponent } from "vue";
+import { useAuthStore } from "stores/auth-store";
+import { storeToRefs } from "pinia";
+import KeycloakService from "src/services/auth/keycloakService"
 
-defineOptions({
-  name: 'MainLayout'
+export default defineComponent({
+  name: 'MainLayout',
+  setup () {
+    const authStore = useAuthStore();
+    const logout = async () => {
+      await KeycloakService.logout();
+    }
+    const login = async () => {
+      await KeycloakService.login();
+    }
+
+    const {currentUser, isLoggedIn} = storeToRefs(authStore)
+
+    onMounted(async () => {
+    })
+
+    return {
+      logout,
+      login,
+      currentUser,
+      isLoggedIn
+    }
+  }
 })
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
 </script>

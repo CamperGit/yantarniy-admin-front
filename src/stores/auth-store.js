@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from "vue";
-import UserService from "src/service/auth/userService";
-import KeycloakService from "src/service/auth/keycloakService";
+import UserService from "src/services/auth/userService";
+import KeycloakService from "src/services/auth/keycloakService";
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUser = ref(null);
@@ -11,9 +11,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getUserInfoOrCreate = async () => {
     currentUser.value = await UserService.getUserInfo();
-    if (!currentUser.value.id) {
-      currentUser.value = await UserService.create(currentUser.value);
-    }
   }
 
   const logout = async () => {
