@@ -5,14 +5,14 @@
         <q-item class="logo-item q-pa-none " clickable :to="'/book'">
           <q-img src="~src/assets/logo.png"/>
         </q-item>
-        <!--        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Главная</q-btn>-->
         <q-btn class="text-white" size="lg" no-caps flat :to="'/'">Главная</q-btn>
         <q-btn class="text-white" size="lg" no-caps flat :to="'/employees'">Сотрудники</q-btn>
         <q-btn class="text-white" size="lg" no-caps flat :to="'/prices'">Прайс</q-btn>
         <q-btn class="text-white" size="lg" no-caps flat :to="'/sales'">Скидки</q-btn>
         <q-btn class="text-white" size="lg" no-caps flat :to="'/schedules'">Расписание</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/sending'">Рассылки</q-btn>
         <q-space/>
-        <q-btn v-if="isLoggedIn" class="text-white" size="lg" no-caps flat :to="'/profile'">{{currentUser.username || ""}}</q-btn>
+        <q-btn v-if="isLoggedIn" class="text-white" size="lg" no-caps flat>{{currentUser.username || ""}}</q-btn>
         <q-btn class="text-white" flat round dense size="lg" icon="logout" @click="logout" />
       </q-toolbar>
     </q-header>

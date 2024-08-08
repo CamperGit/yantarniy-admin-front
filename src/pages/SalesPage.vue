@@ -134,11 +134,18 @@
           <div class="dialog-title">Превью загруженного изображения</div>
           <q-img :src="imageUrlPreview"></q-img>
         </q-card-section>
+        <q-card-section class="row q-mx-sm q-pb-md justify-between">
+          <q-checkbox class="col-6" v-model="enableTelegramSending" label="Создать рассылку?"/>
+          <q-btn v-if="enableTelegramSending"
+                 @click="sendTelegramMessage(image, item.description, null, true)"
+                 color="primary" class="filter-button"
+                 no-caps label="Протестировать"/>
+        </q-card-section>
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Создать"
                  :disable="!isValidItem(item, image, 'CREATE')"
-                 @click="createItem(item, image)" v-close-popup/>
+                 @click="createItem(item, image, enableTelegramSending)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
         </q-card-actions>
@@ -175,11 +182,18 @@
           <div class="dialog-title">Превью загруженного изображения</div>
           <q-img :src="imageUrlPreview"></q-img>
         </q-card-section>
+        <q-card-section class="row q-mx-sm q-pb-md justify-between">
+          <q-checkbox class="col-6" v-model="enableTelegramSending" label="Создать рассылку?"/>
+          <q-btn v-if="enableTelegramSending"
+                 class="filter-button"
+                 @click="sendTelegramMessage(image, item.description, item.file, true)"
+                 color="primary" no-caps label="Протестировать"/>
+        </q-card-section>
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Изменить"
                  :disable="!isValidItem(item, image, 'UPDATE')"
-                 @click="editItem(item, image)" v-close-popup/>
+                 @click="editItem(item, image, enableTelegramSending)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
         </q-card-actions>
@@ -199,6 +213,9 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="openTelegramSendResultDialog">
+      <telegram-send-result-table :telegram-send-response="telegramSendResponse"></telegram-send-result-table>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -207,6 +224,8 @@ import { ref, onMounted, watch, defineComponent } from "vue";
 import { useQuasar } from "quasar";
 import LocationService from "src/services/location/locationService";
 import SaleService from "src/services/sale/saleService";
+import TelegramSendService from "src/services/telegram/telegramSendService";
+import TelegramSendResultTable from "components/TelegramSendResultTable.vue";
 
 const COLUMNS = [
   {
@@ -257,6 +276,9 @@ const SORT_DIRECTIONS = [
 
 export default defineComponent({
   name: "SalesPage",
+  components: {
+    TelegramSendResultTable
+  },
   setup() {
     const $q = useQuasar();
     const tableRef = ref();
@@ -275,6 +297,13 @@ export default defineComponent({
         id: null
       }
     });
+    const enableTelegramSending = ref(false);
+    const openTelegramSendResultDialog = ref(false);
+    const telegramSendResponse = ref(null);
+    const sendTelegramMessage = async (file, description, fileModel, onlyAdmins) => {
+      telegramSendResponse.value = await TelegramSendService.sendMessage(file, description, fileModel, onlyAdmins);
+      openTelegramSendResultDialog.value = true;
+    }
 
     const isValidItem = (item, file, action) => {
       const firstCheck = item.location.id;
@@ -393,7 +422,23 @@ export default defineComponent({
       }
     }
 
-    const editItem = async (data, image) => {
+    const sendTelegramMessageWithNotify = async (data, image, fileModel, onlyAdmins) => {
+      try {
+        await sendTelegramMessage(image, data.description, fileModel, onlyAdmins)
+        $q.notify({
+          type: 'positive',
+          message: `Рассылка была успешно закончена`
+        })
+      } catch (e) {
+        $q.notify({
+          type: 'negative',
+          message: `Ошибка при создании рассылки`
+        })
+        throw e;
+      }
+    }
+
+    const editItem = async (data, image, sendMessage) => {
       try {
         await SaleService.update(data, image);
         updateTable();
@@ -401,6 +446,13 @@ export default defineComponent({
           type: 'positive',
           message: `Элемент был успешно обновлен`
         })
+        if (sendMessage) {
+          let fileModel = null;
+          if (!image) {
+            fileModel = data.file;
+          }
+          await sendTelegramMessageWithNotify(data, image, fileModel, false);
+        }
       } catch (e) {
         $q.notify({
           type: 'negative',
@@ -410,7 +462,7 @@ export default defineComponent({
       }
     }
 
-    const createItem = async (data, image) => {
+    const createItem = async (data, image, sendMessage) => {
       try {
         await SaleService.create(data, image);
         updateTable();
@@ -418,6 +470,9 @@ export default defineComponent({
           type: 'positive',
           message: `Элемент был успешно добавлен`
         })
+        if (sendMessage) {
+          await sendTelegramMessageWithNotify(data, image, null, false);
+        }
       } catch (e) {
         $q.notify({
           type: 'negative',
@@ -468,9 +523,13 @@ export default defineComponent({
       filters,
       image,
       imageUrlPreview,
+      enableTelegramSending,
+      openTelegramSendResultDialog,
+      telegramSendResponse,
       COLUMNS,
       SORT_PROPERTIES,
       SORT_DIRECTIONS,
+      sendTelegramMessage,
       isValidItem,
       checkFileFilters,
       onRejected,
@@ -535,7 +594,7 @@ export default defineComponent({
 }
 
 .filter-button {
-  width: 110px;
+  width: 130px;
 }
 
 .clear-filter-button {
