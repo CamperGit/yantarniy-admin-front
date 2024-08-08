@@ -429,12 +429,14 @@ export default defineComponent({
       })
     }
     const onImageAdd = (file) => {
-      console.log(file);
       imageUrlPreview.value = URL.createObjectURL(file);
     }
 
+    const salesLocations = ['SPA', 'CLUB_CARDS'];
+
     onMounted(async () => {
-      locations.value = await LocationService.getAll();
+      const locationsBeforeFiltering = await LocationService.getAll();
+      locations.value = locationsBeforeFiltering.filter(location => salesLocations.includes(location.type))
       tableRef.value.requestServerInteraction();
     });
 

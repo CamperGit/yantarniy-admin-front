@@ -467,13 +467,15 @@ export default defineComponent({
       })
     }
     const onImageAdd = (file) => {
-      console.log(file);
       imageUrlPreview.value = URL.createObjectURL(file);
     }
 
+    const employeeLocations = ['GYM', 'GROUP_ACTIVITY', 'POOL', 'NAILS', 'COSMETOLOGY', 'STYLISTS', 'MASSAGE'];
+
     onMounted(async () => {
       employeeTypes.value = await EmployeeTypeService.getAll();
-      locations.value = await LocationService.getAll();
+      const locationsBeforeFiltering = await LocationService.getAll();
+      locations.value = locationsBeforeFiltering.filter(location => employeeLocations.includes(location.type))
       tableRef.value.requestServerInteraction();
     });
 

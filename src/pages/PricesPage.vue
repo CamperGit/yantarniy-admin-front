@@ -414,8 +414,11 @@ export default defineComponent({
       imageUrlPreview.value = URL.createObjectURL(file);
     }
 
+    const pricesLocations = ['BATHHOUSE', 'NAILS', 'COSMETOLOGY', 'STYLISTS', 'MASSAGE'];
+
     onMounted(async () => {
-      locations.value = await LocationService.getAll();
+      const locationsBeforeFiltering = await LocationService.getAll();
+      locations.value = locationsBeforeFiltering.filter(location => pricesLocations.includes(location.type))
       tableRef.value.requestServerInteraction();
     });
 
