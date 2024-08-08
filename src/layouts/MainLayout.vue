@@ -52,3 +52,9 @@ export default defineComponent({
 })
 
 </script>
+
+<style>
+body {
+  font-family: 'Play', sans-serif;
+}
+</style>
