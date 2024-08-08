@@ -8,6 +8,9 @@
         <!--        <q-btn class="text-accent" size="lg" no-caps flat :to="'/'">Главная</q-btn>-->
         <q-btn class="text-white" size="lg" no-caps flat :to="'/'">Главная</q-btn>
         <q-btn class="text-white" size="lg" no-caps flat :to="'/employees'">Сотрудники</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/prices'">Прайс</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/sales'">Скидки</q-btn>
+        <q-btn class="text-white" size="lg" no-caps flat :to="'/schedules'">Расписание</q-btn>
         <q-space/>
         <q-btn v-if="isLoggedIn" class="text-white" size="lg" no-caps flat :to="'/profile'">{{currentUser.username || ""}}</q-btn>
         <q-btn class="text-white" flat round dense size="lg" icon="logout" @click="logout" />
