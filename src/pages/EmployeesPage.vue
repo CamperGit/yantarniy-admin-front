@@ -54,7 +54,7 @@
                                    @click="openDeleteDialog(props.row)"></q-btn>
                           </div>
                         </div>
-                        <div class="card-content">
+                        <div class="card-content" v-if="props.row.file && props.row.file.storageUrl">
                           <q-img :src="props.row.file.storageUrl" class="card-image"></q-img>
                         </div>
                       </q-card-section>
@@ -119,7 +119,7 @@
     <q-dialog v-model="createDialog">
       <q-card class="dialog-width-default q-pa-sm">
         <q-card-section class="q-px-md q-pb-md q-mx-sm q-mt-lg q-ma-none items-center">
-          <q-input class="q-ma-none" dense filled v-model="item.description" label="Описание"></q-input>
+          <q-input class="q-ma-none" maxlength="500" dense filled v-model="item.description" label="Описание"></q-input>
         </q-card-section>
         <q-card-section class="q-px-md q-pb-md q-mx-sm q-mt-lg q-ma-none">
           <q-select v-model="item.location.id" options-dense :options="locations" dense
@@ -151,6 +151,7 @@
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Создать"
+                 :disable="!isValidItem(item, image, 'CREATE')"
                  @click="createItem(item, image)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
@@ -160,7 +161,7 @@
     <q-dialog v-model="editDialog">
       <q-card class="dialog-width-default q-pa-sm">
         <q-card-section class="q-px-md q-pb-md q-mx-sm q-mt-lg q-ma-none items-center">
-          <q-input class="q-ma-none" dense filled v-model="item.description" label="Описание"></q-input>
+          <q-input class="q-ma-none" maxlength="500" dense filled v-model="item.description" label="Описание"></q-input>
         </q-card-section>
         <q-card-section class="q-px-md q-pb-md q-mx-sm q-mt-lg q-ma-none">
           <q-select v-model="item.location.id" options-dense :options="locations" dense
@@ -196,6 +197,7 @@
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Изменить"
+                 :disable="!isValidItem(item, image, 'UPDATE')"
                  @click="editItem(item, image)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
@@ -306,6 +308,17 @@ export default defineComponent({
     });
     const image = ref(null);
     const imageUrlPreview = ref(null);
+
+    const isValidItem = (item, file, action) => {
+      const firstCheck = item.location.id && item.type.id;
+      if (action === 'CREATE') {
+        return firstCheck && (item.description || file);
+      }
+      if (action === 'UPDATE') {
+        return firstCheck && (item.description || (item.file && item.file.id) || file);
+      }
+      return false;
+    }
 
     const filters = ref({
       typeId: null,
@@ -497,6 +510,7 @@ export default defineComponent({
       COLUMNS,
       SORT_PROPERTIES,
       SORT_DIRECTIONS,
+      isValidItem,
       checkFileFilters,
       onRejected,
       onRequestTableData,

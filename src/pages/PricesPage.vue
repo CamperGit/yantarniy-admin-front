@@ -46,7 +46,7 @@
                                    @click="openDeleteDialog(props.row)"></q-btn>
                           </div>
                         </div>
-                        <div class="card-content">
+                        <div class="card-content" v-if="props.row.file && props.row.file.storageUrl">
                           <q-img :src="props.row.file.storageUrl" class="card-image"></q-img>
                         </div>
                       </q-card-section>
@@ -130,6 +130,7 @@
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Создать"
+                 :disable="!isValidItem(item, image, 'CREATE')"
                  @click="createItem(item, image)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
@@ -167,6 +168,7 @@
         <q-card-actions class="q-mx-md q-pb-md row">
           <q-btn size="md" class="filter-button" no-caps
                  color="primary" label="Изменить"
+                 :disable="!isValidItem(item, image, 'UPDATE')"
                  @click="editItem(item, image)" v-close-popup/>
           <q-space/>
           <q-btn size="md" class="filter-button" color="red-5" no-caps label="Отмена" v-close-popup/>
@@ -258,6 +260,17 @@ export default defineComponent({
     });
     const image = ref(null);
     const imageUrlPreview = ref(null);
+
+    const isValidItem = (item, file, action) => {
+      const firstCheck = item.location.id;
+      if (action === 'CREATE') {
+        return firstCheck && file;
+      }
+      if (action === 'UPDATE') {
+        return firstCheck && ((item.file && item.file.id) || file);
+      }
+      return false;
+    }
 
     const filters = ref({
       locationId: null,
@@ -439,6 +452,7 @@ export default defineComponent({
       COLUMNS,
       SORT_PROPERTIES,
       SORT_DIRECTIONS,
+      isValidItem,
       checkFileFilters,
       onRejected,
       onRequestTableData,
