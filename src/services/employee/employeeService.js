@@ -46,21 +46,45 @@ class EmployeeService {
     }
   }
 
-  async create(item) {
+  async create(item, file) {
     try {
       const authorizationHeader = await authHeader();
-      return await api.post(`${API_URL}`, item, {headers: authorizationHeader})
+      let formData = new FormData();
+      const blob = new Blob([JSON.stringify(item)], {
+        type: 'application/json'
+      });
+      formData.append("employee", blob);
+      formData.append("image", file);
+      const {data} = await api.post(`${API_URL}/creating`, formData, {
+        headers: {
+          "Content-Type" : 'multipart/form-data',
+          ...authorizationHeader
+        }
+      });
+      return data;
     } catch (e) {
-      throw e
+      throw e;
     }
   }
 
-  async update(item) {
+  async update(item, file) {
     try {
       const authorizationHeader = await authHeader();
-      return await api.put(`${API_URL}/${item.id}`, item, {headers: authorizationHeader})
+      let formData = new FormData();
+      const blob = new Blob([JSON.stringify(item)], {
+        type: 'application/json'
+      });
+      formData.append("employee", blob);
+      formData.append("image", file);
+      const {data} = await api.post(`${API_URL}/updating`, formData, {
+        headers: {
+          "Content-Type" : 'multipart/form-data',
+          ...authorizationHeader
+        }
+      });
+      return data;
     } catch (e) {
-      throw e
+      throw e;
     }
   }
 
